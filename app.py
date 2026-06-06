@@ -223,37 +223,5 @@ with st.expander("📖 使用说明"):
     st.markdown("")
     st.markdown("如遇到合成失败或任何问题，请联系 **润锋 13307871670**。")
 
-# ====== 成本明细（演示用） ======
-with st.expander("💰 成本明细", expanded=False):
-    st.markdown("""
-    <style>
-    .cost-table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-    .cost-table th { background: rgba(41,128,185,.15); color: #85c1e9; padding: 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,.1); }
-    .cost-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,.06); color: #d5dde5; }
-    .cost-total { font-size: 18px; font-weight: 800; color: #85c1e9; text-align: right; padding: 14px; }
-    .cost-discount { color: #e74c3c; font-weight: 700; }
-    .cost-final { font-size: 24px; font-weight: 900; color: #2ecc71; text-align: right; padding: 14px; }
-    </style>
-    """, unsafe_allow_html=True)
-
-    st.markdown("### 庭锋装饰集团 · AI语音工坊成本明细")
-    st.caption("以下为阿里云官方收费 + 润锋技术服务费合计")
-
-    st.markdown("""
-    <table class="cost-table">
-    <tr><th>成本项</th><th>明细</th><th style="text-align:right">金额</th></tr>
-    <tr><td>阿里云声音复刻训练</td><td>5位员工 × 每人10分钟样本 + AI模型训练</td><td style="text-align:right">¥1,000</td></tr>
-    <tr><td>音色调试 & 验证</td><td>每人测试合成、微调参数、确保自然度</td><td style="text-align:right">¥300</td></tr>
-    <tr><td>装修行业模板定制</td><td>咨询/开工/进度/回访/品牌宣传等7个场景</td><td style="text-align:right">¥500</td></tr>
-    <tr><td>云端服务器部署</td><td>Streamlit Cloud + 域名 + HTTPS</td><td style="text-align:right">¥300</td></tr>
-    <tr><td>一年技术维护</td><td>声音模型更新、模板增改、bug修复</td><td style="text-align:right">¥300</td></tr>
-    <tr><td>API调用预充值</td><td>阿里云百炼语音合成</td><td style="text-align:right">¥200</td></tr>
-    <tr><td colspan="2" class="cost-total">成本合计</td><td class="cost-total">¥2,600</td></tr>
-    <tr><td colspan="2" style="text-align:right;color:#e74c3c;font-weight:700">润锋合作方老客户减免</td><td class="cost-discount" style="text-align:right">-¥1</td></tr>
-    <tr><td colspan="2" class="cost-final">实收</td><td class="cost-final">¥2,599</td></tr>
-    </table>
-    """, unsafe_allow_html=True)
-    st.caption("润锋是平台合作方，开发利润已代为免除。以上仅为阿里云官方服务成本。")
-
 st.markdown("---")
 st.markdown("<p style='text-align:center;color:#7f8c8d;font-size:12px;margin-top:30px'>Powered by <b>润锋 AI</b> · 庭锋装饰集团专属语音工坊</p>", unsafe_allow_html=True)
