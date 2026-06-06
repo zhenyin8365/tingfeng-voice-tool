@@ -54,9 +54,13 @@ with st.expander("⚙️ 第一步：配置（填一次即可）", expanded=(not
         placeholder="sk-xxxxxxxxxxxxxxxx",
         help="整个公司共用一个 API-Key，由管理员统一填写。")
 
+    st.markdown("[🔑 去获取阿里云API KEY](https://bailian.console.aliyun.com/cn-beijing?tab=model#/api-key)")
+
     st.markdown("---")
     st.markdown("<p style='color:#85c1e9;font-weight:600'>👥 员工声音配置（5个槽位）</p>", unsafe_allow_html=True)
     st.caption("每位员工填写姓名和对应的复刻音色ID，不用的槽位留空即可。")
+
+    st.markdown("[🎙️ 去获取声音复刻ID](https://bailian.console.aliyun.com/cn-beijing?tab=model#/efm/model_experience_center/voice?currentTab=voiceTts&primary=cloning&secondary=clone)")
 
     slots = []
     for i in range(5):
