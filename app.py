@@ -9,6 +9,41 @@ st.set_page_config(page_title="庭锋顺锋·AI语音工坊", page_icon="🏗️
 SLOT_COUNT = 6
 AGNES_KEY = "sk-SfAuFKTIGg8WCkhwRYgVZGhSNazYLgrSbI4dYWrSBsM2RrCK"
 
+POLISH_PROMPT = """你是一位经验丰富的实体店产品讲解员，不是销售。你只负责客观、中立地向客户介绍产品本身的真实情况，不做任何推销、说服或引导购买的行为。
+
+核心任务：根据用户输入的内容，生成一段纯讲解式的口播文案。
+
+绝对核心原则（必须严格遵守，违者重写）：
+1. 零营销：绝对禁止出现任何营销话术、销售话术、促销话术。
+2. 零硬广：绝对禁止出现"销量好""卖得火""爆款""性价比高""划算""便宜""值得买""推荐""首选""必入"等词汇。
+3. 零夸大：绝对禁止夸大产品功能、材质、质量或效果。
+4. 零对比：绝对禁止与其他品牌、其他产品进行任何形式的对比。
+5. 零催促：绝对禁止出现"赶紧买""错过就没了""活动最后一天"等催促下单的内容。
+6. 零承诺：绝对禁止做出任何超出产品本身属性的承诺。
+
+内容要求，只讲解产品本身客观存在的特点：
+- 整体的设计风格、造型、颜色
+- 产品的结构、分区、布局
+- 各个部分的功能和用途
+- 看得见摸得着的材质和工艺细节
+- 日常使用中的实际体验和便利性
+- 适合摆放的空间和场景
+
+语气和风格要求：
+- 语气自然、平和、亲切，就像实体店老板在店里随手给客户介绍一样
+- 语言口语化，避免书面语和专业术语
+- 语速适中，句子简短，适合口播
+- 不带任何个人主观评价和感情色彩
+- 不背书，不推销，只陈述事实
+
+输出要求：
+- 直接输出文案内容，不要任何前缀、后缀或解释
+- 文案长度控制在100-200字之间
+- 段落清晰，每句话表达一个意思
+
+负面清单（绝对禁止出现）：
+销量、爆款、热销、推荐、首选、必买、划算、便宜、性价比、最好、顶级、完美、秒杀、吊打、赶紧、错过、活动、优惠、特价、促销、打折、赠品、厂家直销、工厂价"""
+
 # ── 从 URL 恢复配置 ──
 try:
     qp = st.query_params
@@ -171,7 +206,45 @@ text = st.text_area("输入要合成的文字", height=180,
     value=st.session_state.get("template_text", ""),
     placeholder="在这里输入你想说的话，或点击上方 AI 按钮自动生成，或点击下方模板快速填充。",
     max_chars=2000)
-st.caption(f"{len(text)} / 2000 字")
+
+tc1, tc2 = st.columns(2)
+with tc1:
+    st.caption(f"{len(text)} / 2000 字")
+with tc2:
+    polish_clicked = st.button("✨ 去广润色", key="polish", use_container_width=True,
+        help="把营销文案转为纯讲解风格，去掉硬广和推销话术")
+
+if polish_clicked:
+    if not text.strip():
+        st.error("请先输入要润色的文案。")
+    else:
+        with st.spinner("AI 正在润色文案..."):
+            try:
+                import requests as req2
+                polish_resp = req2.post(
+                    "https://apihub.agnes-ai.com/v1/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {AGNES_KEY}",
+                        "Content-Type": "application/json",
+                    },
+                    json={
+                        "model": "agnes-2.0-flash",
+                        "messages": [
+                            {"role": "system", "content": POLISH_PROMPT},
+                            {"role": "user", "content": text.strip()},
+                        ],
+                        "max_tokens": 600,
+                    },
+                    timeout=30,
+                )
+                if polish_resp.status_code == 200:
+                    polished = polish_resp.json()["choices"][0]["message"]["content"].strip()
+                    st.session_state["template_text"] = polished
+                    st.rerun()
+                else:
+                    st.error(f"润色失败：{polish_resp.text[:150]}")
+            except Exception as e:
+                st.error(f"润色失败：{e}")
 
 # 快捷模板
 st.caption("快捷模板（点击自动填入）：")
