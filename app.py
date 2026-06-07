@@ -145,22 +145,22 @@ for idx, (label, prompt) in enumerate(ai_products.items()):
                             "Authorization": f"Bearer {AGNES_KEY}",
                             "Content-Type": "application/json",
                         },
-                            json={
-                                "model": "agnes-2.0-flash",
-                                "messages": [
-                                    {"role": "system", "content": "你是一个专业的抖音家具口播文案写手。回复只输出文案本身，不加任何解释、引号或前缀。语气要自然，像朋友推荐。"},
-                                    {"role": "user", "content": prompt},
-                                ],
-                                "max_tokens": 300,
-                            },
-                            timeout=30,
-                        )
-                        if ai_resp.status_code == 200:
-                            ai_text = ai_resp.json()["choices"][0]["message"]["content"].strip()
-                            st.session_state["template_text"] = ai_text
-                            st.rerun()
-                        else:
-                            st.error(f"AI 生成失败：{ai_resp.text[:150]}")
+                        json={
+                            "model": "agnes-2.0-flash",
+                            "messages": [
+                                {"role": "system", "content": "你是一个专业的抖音家具口播文案写手。回复只输出文案本身，不加任何解释、引号或前缀。语气要自然，像朋友推荐。"},
+                                {"role": "user", "content": prompt},
+                            ],
+                            "max_tokens": 300,
+                        },
+                        timeout=30,
+                    )
+                    if ai_resp.status_code == 200:
+                        ai_text = ai_resp.json()["choices"][0]["message"]["content"].strip()
+                        st.session_state["template_text"] = ai_text
+                        st.rerun()
+                    else:
+                        st.error(f"AI 生成失败：{ai_resp.text[:150]}")
                 except Exception as e:
                     st.error(f"AI 生成失败：{e}")
 
