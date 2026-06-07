@@ -137,6 +137,11 @@ for idx, (label, sample) in enumerate(templates.items()):
             st.session_state["template_text"] = sample
             st.rerun()
 
+language = st.selectbox("语言",
+    options=["普通话", "白话"],
+    help="选择合成语音的语言")
+lang_hint = "zh" if language == "普通话" else "yue"
+
 col_s1, col_s2 = st.columns(2)
 with col_s1:
     speed = st.select_slider("语速", options=[0.8, 1.0, 1.2, 1.3, 1.5], value=1.0)
@@ -171,6 +176,7 @@ if st.button("▶ 开始合成", use_container_width=True):
                         "parameters": {
                             "speech_rate": speed,
                             "volume": volume,
+                            "language_hints": [lang_hint],
                         },
                     },
                     timeout=60,
