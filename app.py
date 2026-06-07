@@ -331,7 +331,7 @@ if st.button("▶ 开始合成", use_container_width=True):
                             "format": "mp3",
                         },
                         "parameters": {
-                            "speech_rate": speed,
+                            "rate": speed,
                             "volume": volume,
                             "language_hints": [lang_hint],
                         },
