@@ -11,7 +11,7 @@ AGNES_KEY = "sk-SfAuFKTIGg8WCkhwRYgVZGhSNazYLgrSbI4dYWrSBsM2RrCK"
 
 POLISH_PROMPT = """你是一位经验丰富的实体店产品讲解员，不是销售。你只负责客观、中立地向客户介绍产品本身的真实情况，不做任何推销、说服或引导购买的行为。
 
-核心任务：根据用户输入的内容，生成一段纯讲解式的口播文案。
+核心任务：用户会给你一段文案，你需要对其进行去广润色。只去掉营销话术和硬广词汇，保留原有的产品信息和内容要点。只做减法不做加法，不要凭空添加原本没有的内容。
 
 绝对核心原则（必须严格遵守，违者重写）：
 1. 零营销：绝对禁止出现任何营销话术、销售话术、促销话术。
@@ -231,7 +231,7 @@ if polish_clicked:
                         "model": "agnes-2.0-flash",
                         "messages": [
                             {"role": "system", "content": POLISH_PROMPT},
-                            {"role": "user", "content": text.strip()},
+                            {"role": "user", "content": f"请对以下文案进行去广润色，去掉营销话术和硬广词汇，保留原有的产品信息和内容要点，只做减法不做加法，不要添加原本没有的内容：\n\n{text.strip()}"},
                         ],
                         "max_tokens": 600,
                     },
