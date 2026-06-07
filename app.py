@@ -1,26 +1,28 @@
 """
-庭锋装饰集团·AI语音工坊 — 多员工AI语音合成工具
+庭锋顺锋·AI语音工坊 — 翁大锋旗下庭锋装饰集团 + 那隆顺锋家私 多员工AI语音合成工具
 """
 
 import streamlit as st
 
-st.set_page_config(page_title="庭锋装饰集团·AI语音工坊", page_icon="🏗️", layout="centered")
+st.set_page_config(page_title="庭锋顺锋·AI语音工坊", page_icon="🏗️", layout="centered")
+
+SLOT_COUNT = 6
 
 # ── 从 URL 恢复配置 ──
 try:
     qp = st.query_params
     saved_key = qp.get("key", "")
     saved_slots = []
-    for i in range(1, 6):
+    for i in range(1, SLOT_COUNT + 1):
         saved_slots.append({
             "name": qp.get(f"name{i}", ""),
             "voice": qp.get(f"voice{i}", ""),
         })
 except Exception:
     saved_key = ""
-    saved_slots = [{"name": "", "voice": ""} for _ in range(5)]
+    saved_slots = [{"name": "", "voice": ""} for _ in range(SLOT_COUNT)]
 
-# ── 庭锋品牌色系 ──
+# ── 品牌色系 ──
 st.markdown("""
 <style>
 .stButton>button {
@@ -42,35 +44,41 @@ st.markdown("""
     border-radius: 12px; padding: 14px; margin-bottom: 10px;
 }
 .employee-card h4 { color: #85c1e9; margin: 0 0 8px 0; }
+.dept-tag {
+    display: inline-block; background: rgba(41,128,185,.15); color: #85c1e9;
+    border-radius: 8px; padding: 2px 10px; font-size: 11px; margin-left: 8px;
+}
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1 style='color:#85c1e9;text-align:center'>🏗️ 庭锋装饰集团·AI语音工坊</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center;color:#aab7c4;margin-bottom:30px'>5位员工专属声音 · 输入文字即合成语音</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='color:#85c1e9;text-align:center'>🏗️ 庭锋顺锋·AI语音工坊</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;color:#aab7c4;margin-bottom:5px'>庭锋装饰集团 · 那隆顺锋家私 | 翁大锋旗下品牌</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;color:#aab7c4;margin-bottom:30px'>6位员工专属声音 · 输入文字即合成语音</p>", unsafe_allow_html=True)
 
 # ====== 第一步：配置 ======
-with st.expander("⚙️ 第一步：配置（填一次即可）", expanded=(not saved_key)):
+with st.expander("第一步：配置（填一次即可）", expanded=(not saved_key)):
     api_key = st.text_input("阿里云百炼 API-Key", type="password", value=saved_key,
         placeholder="sk-xxxxxxxxxxxxxxxx",
-        help="整个公司共用一个 API-Key，由管理员统一填写。")
+        help="两个公司共用一个 API-Key，由管理员统一填写。")
 
     st.markdown("[🔑 去获取阿里云API KEY](https://bailian.console.aliyun.com/cn-beijing?tab=model#/api-key)")
 
     st.markdown("---")
-    st.markdown("<p style='color:#85c1e9;font-weight:600'>👥 员工声音配置（5个槽位）</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#85c1e9;font-weight:600'>员工声音配置（6个槽位）</p>", unsafe_allow_html=True)
     st.caption("每位员工填写姓名和对应的复刻音色ID，不用的槽位留空即可。")
 
     st.markdown("[🎙️ 去获取声音复刻ID](https://bailian.console.aliyun.com/cn-beijing?tab=model#/efm/model_experience_center/voice?currentTab=voiceTts&primary=cloning&secondary=clone)")
 
     slots = []
-    for i in range(5):
+    for i in range(SLOT_COUNT):
         with st.container():
-            st.markdown(f"<div class='employee-card'><h4>声音 {i+1}</h4>", unsafe_allow_html=True)
+            tag = "庭锋装饰" if i < 3 else "那隆顺锋"
+            st.markdown(f"<div class='employee-card'><h4>声音 {i+1}<span class='dept-tag'>{tag}</span></h4>", unsafe_allow_html=True)
             c1, c2 = st.columns(2)
             with c1:
                 name = st.text_input("员工姓名", key=f"slot_name_{i}",
                     value=saved_slots[i]["name"],
-                    placeholder=f"如：张经理",
+                    placeholder="如：张经理" if i < 3 else "如：陈经理",
                     label_visibility="collapsed")
             with c2:
                 voice = st.text_input("音色ID", key=f"slot_voice_{i}",
@@ -80,7 +88,7 @@ with st.expander("⚙️ 第一步：配置（填一次即可）", expanded=(not
             st.markdown("</div>", unsafe_allow_html=True)
             slots.append({"name": name, "voice": voice})
 
-    if st.button("💾 保存全部配置", use_container_width=True):
+    if st.button("保存全部配置", use_container_width=True):
         if not api_key.strip():
             st.error("请先填写 API-Key。")
         else:
@@ -94,7 +102,7 @@ with st.expander("⚙️ 第一步：配置（填一次即可）", expanded=(not
 configured = [(s["name"].strip(), s["voice"].strip()) for s in slots if s["name"].strip() and s["voice"].strip()]
 
 # ====== 第二步：选择员工 ======
-st.markdown("<h3 style='color:#85c1e9'>👤 第二步：选择员工声音</h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='color:#85c1e9'>第二步：选择员工声音</h3>", unsafe_allow_html=True)
 
 if not configured:
     st.warning("请先在第一步配置中至少填写一位员工的姓名和音色ID。")
@@ -111,7 +119,7 @@ else:
             break
 
 # ====== 第三步：合成 ======
-st.markdown("<h3 style='color:#85c1e9'>📝 第三步：语音合成</h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='color:#85c1e9'>第三步：语音合成</h3>", unsafe_allow_html=True)
 
 text = st.text_area("输入要合成的文字", height=180,
     value=st.session_state.get("template_text", ""),
@@ -119,21 +127,51 @@ text = st.text_area("输入要合成的文字", height=180,
     max_chars=2000)
 st.caption(f"{len(text)} / 2000 字")
 
-# 快捷模板（庭锋装饰场景）
-st.caption("💡 快捷模板（点击自动填入）：")
-templates = {
+# 快捷模板
+st.caption("快捷模板（点击自动填入）：")
+
+# ── 庭锋装饰模板 ──
+st.markdown("<p style='color:#85c1e9;font-size:13px;margin:4px 0'>庭锋装饰集团</p>", unsafe_allow_html=True)
+tf_templates = {
     "📞 装修咨询": "您好，这里是庭锋装饰集团。感谢您的来电，请问有什么可以帮您的？我们提供免费量房、方案设计和预算报价服务。",
     "🏠 开工通知": "您好，我是庭锋装饰的项目经理。您家的装修工程将于下周一正式开工，届时我会提前到现场做开工准备，请您放心。",
     "📋 进度汇报": "您好，您家的装修目前水电改造已完成，下一步是木工进场。预计工期还有30天，我会每周向您汇报进度。",
     "🎉 竣工交付": "恭喜您，您家的装修工程已全面竣工！我们已经完成了全屋保洁，请您抽时间来验收。有任何问题随时联系我。",
-    "💼 客户回访": "您好，我是庭锋装饰的客服。想了解一下您入住后的体验如何，对我们装修质量和服务是否满意？",
-    "📢 品牌宣传": "庭锋装饰集团，专注品质家装二十年。自有施工团队，绝不转包，材料透明，报价实在。让每一位客户住得放心。",
-    "🎙️ 自我介绍": "大家好，我是庭锋装饰集团的设计师。我擅长现代简约和新中式风格，已经为上百位客户打造了理想的家。",
+    "💼 装修回访": "您好，我是庭锋装饰的客服。想了解一下您入住后的体验如何，对我们装修质量和服务是否满意？",
+}
+cols = st.columns(5)
+for idx, (label, sample) in enumerate(tf_templates.items()):
+    with cols[idx % 5]:
+        if st.button(label, key=f"tf_{idx}", use_container_width=True):
+            st.session_state["template_text"] = sample
+            st.rerun()
+
+# ── 那隆顺锋家私模板 ──
+st.markdown("<p style='color:#d4a854;font-size:13px;margin:12px 0 4px 0'>那隆顺锋家私</p>", unsafe_allow_html=True)
+nl_templates = {
+    "🛋️ 家具咨询": "您好，这里是那隆顺锋家私。我们主营实木床、衣柜、沙发、餐桌等全屋家具，厂家直销价格更实惠。请问有什么可以帮您？",
+    "📦 订单确认": "您好，您在我们那隆顺锋家私订购的家具已经确认。我们会在48小时内安排生产，预计15天左右完工，届时电话通知您送货。",
+    "🚚 送货通知": "您好，您订的家具今天下午送到，请保持电话畅通。我们的师傅会帮忙搬到指定位置并简单安装。",
+    "💼 家具回访": "您好，我是那隆顺锋家私的客服。上次买的家具用得还满意吗？有任何质量问题随时联系我们，保修期内免费处理。",
+    "🪑 产品介绍": "这款实木大床选用进口白橡木，卯榫结构坚固耐用。配套床头柜和衣柜也可以一起看，全屋配齐更划算。",
+}
+cols = st.columns(5)
+for idx, (label, sample) in enumerate(nl_templates.items()):
+    with cols[idx % 5]:
+        if st.button(label, key=f"nl_{idx}", use_container_width=True):
+            st.session_state["template_text"] = sample
+            st.rerun()
+
+# 通用模板
+st.markdown("<p style='color:#aab7c4;font-size:13px;margin:12px 0 4px 0'>通用</p>", unsafe_allow_html=True)
+common_templates = {
+    "📢 品牌宣传": "庭锋装饰集团专注品质家装，那隆顺锋家私厂家直销。翁大锋旗下品牌，真材实料，十年质保。让每一位客户住得放心，用得安心。",
+    "🎙️ 自我介绍": "大家好，我是翁大锋，庭锋装饰集团和那隆顺锋家私的创始人。我做装修和家具二十多年，坚持质量第一，服务至上。有任何需求欢迎来找我。",
 }
 cols = st.columns(4)
-for idx, (label, sample) in enumerate(templates.items()):
+for idx, (label, sample) in enumerate(common_templates.items()):
     with cols[idx % 4]:
-        if st.button(label, key=f"tmpl_{idx}", use_container_width=True):
+        if st.button(label, key=f"cm_{idx}", use_container_width=True):
             st.session_state["template_text"] = sample
             st.rerun()
 
@@ -194,34 +232,34 @@ if st.button("▶ 开始合成", use_container_width=True):
                         audio = audio_resp.content
                         audio_size = len(audio) / 1024
                         st.markdown("---")
-                        st.markdown("<h3 style='color:#85c1e9'>🔊 合成结果</h3>", unsafe_allow_html=True)
+                        st.markdown("<h3 style='color:#85c1e9'>合成结果</h3>", unsafe_allow_html=True)
                         st.markdown(f"<div class='audio-box'>"
-                            f"<span class='pill'>👤 {selected_name}</span>"
+                            f"<span class='pill'>{selected_name}</span>"
                             f"<span class='pill'>语速 {speed}x</span>"
                             f"<span class='pill'>{len(text)} 字</span>"
                             f"<span class='pill'>{audio_size:.0f} KB</span>"
                             f"</div>", unsafe_allow_html=True)
                         st.audio(audio, format="audio/mp3")
                         safe_name = selected_name.replace("/", "-").replace("\\", "-")
-                        st.download_button("📥 下载到手机", data=audio,
-                            file_name=f"庭锋_{safe_name}.mp3",
+                        st.download_button("下载到手机", data=audio,
+                            file_name=f"庭锋顺锋_{safe_name}.mp3",
                             mime="audio/mpeg", use_container_width=True)
                         st.toast("合成完成！", icon="✅")
             except Exception as e:
                 st.error(f"合成失败：{e}")
 
 # ====== 使用说明 ======
-with st.expander("📖 使用说明"):
+with st.expander("使用说明"):
     st.markdown("**管理员首次设置**")
-    st.markdown("1. 填写阿里云百炼 API-Key（公司共用一个）")
-    st.markdown("2. 在「声音1~5」填好每位员工的姓名和音色ID")
+    st.markdown("1. 填写阿里云百炼 API-Key（两个公司共用一个）")
+    st.markdown("2. 声音1~3 填庭锋装饰员工，声音4~6 填那隆顺锋家私员工")
     st.markdown("3. 点击「保存全部配置」")
-    st.markdown("4. 把带参数的链接分发给员工（或员工直接打开已保存的页面）")
+    st.markdown("4. 把链接发给员工，员工打开网页即可使用")
     st.markdown("")
     st.markdown("**员工日常使用**")
     st.markdown("1. 在下拉框选择自己的名字")
     st.markdown("2. 输入要合成的文字（或点击快捷模板）")
-    st.markdown("3. 调整语速，点击「开始合成」")
+    st.markdown("3. 选择语言、调整语速，点击「开始合成」")
     st.markdown("4. 试听满意后点「下载到手机」")
     st.markdown("")
     st.markdown("**关于声音复刻**")
@@ -230,4 +268,4 @@ with st.expander("📖 使用说明"):
     st.markdown("如遇到合成失败或任何问题，请联系 **润锋 13307871670**。")
 
 st.markdown("---")
-st.markdown("<p style='text-align:center;color:#7f8c8d;font-size:12px;margin-top:30px'>Powered by <b>润锋 AI</b> · 庭锋装饰集团专属语音工坊</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;color:#7f8c8d;font-size:12px;margin-top:30px'>Powered by <b>润锋 AI</b> · 庭锋装饰集团 · 那隆顺锋家私</p>", unsafe_allow_html=True)
