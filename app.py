@@ -7,12 +7,12 @@ import streamlit as st
 st.set_page_config(page_title="庭锋顺锋·AI语音工坊", page_icon="🏗️", layout="centered")
 
 SLOT_COUNT = 6
+AGNES_KEY = "sk-SfAuFKTIGg8WCkhwRYgVZGhSNazYLgrSbI4dYWrSBsM2RrCK"
 
 # ── 从 URL 恢复配置 ──
 try:
     qp = st.query_params
     saved_key = qp.get("key", "")
-    saved_agnes_key = qp.get("agneskey", "")
     saved_slots = []
     for i in range(1, SLOT_COUNT + 1):
         saved_slots.append({
@@ -21,7 +21,6 @@ try:
         })
 except Exception:
     saved_key = ""
-    saved_agnes_key = ""
     saved_slots = [{"name": "", "voice": ""} for _ in range(SLOT_COUNT)]
 
 # ── 品牌色系 ──
@@ -65,11 +64,6 @@ with st.expander("第一步：配置（填一次即可）", expanded=(not saved_
 
     st.markdown("[🔑 去获取阿里云API KEY](https://bailian.console.aliyun.com/cn-beijing?tab=model#/api-key)")
 
-    agnes_key = st.text_input("Agnes AI API-Key（AI文案生成）", type="password", value=saved_agnes_key,
-        placeholder="sk-xxxxxxxxxxxxxxxx",
-        help="用于AI自动生成口播文案，由管理员统一填写。")
-    st.markdown("[🔑 去获取Agnes AI KEY](https://agnes-ai.com)")
-
     st.markdown("---")
     st.markdown("<p style='color:#85c1e9;font-weight:600'>员工声音配置（6个槽位）</p>", unsafe_allow_html=True)
     st.caption("每位员工填写姓名和对应的复刻音色ID，不用的槽位留空即可。")
@@ -100,7 +94,6 @@ with st.expander("第一步：配置（填一次即可）", expanded=(not saved_
             st.error("请先填写 API-Key。")
         else:
             st.query_params["key"] = api_key.strip()
-            st.query_params["agneskey"] = agnes_key.strip()
             for i, s in enumerate(slots):
                 st.query_params[f"name{i+1}"] = s["name"].strip()
                 st.query_params[f"voice{i+1}"] = s["voice"].strip()
@@ -143,18 +136,15 @@ cols = st.columns(6)
 for idx, (label, prompt) in enumerate(ai_products.items()):
     with cols[idx % 6]:
         if st.button(label, key=f"ai_{idx}", use_container_width=True):
-            if not agnes_key.strip():
-                st.error("请先在第一步填写 Agnes AI API-Key。")
-            else:
-                with st.spinner(f"AI 正在为你生成{label}口播文案..."):
-                    try:
-                        import requests as req
-                        ai_resp = req.post(
-                            "https://apihub.agnes-ai.com/v1/chat/completions",
-                            headers={
-                                "Authorization": f"Bearer {agnes_key.strip()}",
-                                "Content-Type": "application/json",
-                            },
+            with st.spinner(f"AI 正在为你生成{label}口播文案..."):
+                try:
+                    import requests as req
+                    ai_resp = req.post(
+                        "https://apihub.agnes-ai.com/v1/chat/completions",
+                        headers={
+                            "Authorization": f"Bearer {AGNES_KEY}",
+                            "Content-Type": "application/json",
+                        },
                             json={
                                 "model": "agnes-2.0-flash",
                                 "messages": [
@@ -171,8 +161,8 @@ for idx, (label, prompt) in enumerate(ai_products.items()):
                             st.rerun()
                         else:
                             st.error(f"AI 生成失败：{ai_resp.text[:150]}")
-                    except Exception as e:
-                        st.error(f"AI 生成失败：{e}")
+                except Exception as e:
+                    st.error(f"AI 生成失败：{e}")
 
 # ====== 第四步：语音合成 ======
 st.markdown("<h3 style='color:#85c1e9'>第四步：语音合成</h3>", unsafe_allow_html=True)
