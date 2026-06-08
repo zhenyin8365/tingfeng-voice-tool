@@ -174,20 +174,22 @@ for idx, (label, prompt) in enumerate(ai_products.items()):
             with st.spinner(f"AI 正在为你生成{label}口播文案..."):
                 try:
                     import requests as req
+                    ai_payload = {
+                        "model": "agnes-2.0-flash",
+                        "messages": [
+                            {"role": "system", "content": "你是一个专业的抖音家具口播文案写手。回复只输出文案本身，不加任何解释、引号或前缀。语气要自然，像朋友推荐。"},
+                            {"role": "user", "content": prompt},
+                        ],
+                        "max_tokens": 300,
+                    }
+                    import json as _json2
                     ai_resp = req.post(
                         "https://apihub.agnes-ai.com/v1/chat/completions",
                         headers={
                             "Authorization": f"Bearer {AGNES_KEY}",
-                            "Content-Type": "application/json",
+                            "Content-Type": "application/json; charset=utf-8",
                         },
-                        json={
-                            "model": "agnes-2.0-flash",
-                            "messages": [
-                                {"role": "system", "content": "你是一个专业的抖音家具口播文案写手。回复只输出文案本身，不加任何解释、引号或前缀。语气要自然，像朋友推荐。"},
-                                {"role": "user", "content": prompt},
-                            ],
-                            "max_tokens": 300,
-                        },
+                        data=_json2.dumps(ai_payload, ensure_ascii=False).encode("utf-8"),
                         timeout=30,
                     )
                     if ai_resp.status_code == 200:
@@ -221,20 +223,22 @@ if polish_clicked:
         with st.spinner("AI 正在润色文案..."):
             try:
                 import requests as req2
+                polish_payload = {
+                    "model": "agnes-2.0-flash",
+                    "messages": [
+                        {"role": "system", "content": POLISH_PROMPT},
+                        {"role": "user", "content": f"请对以下文案进行去广润色，去掉营销话术和硬广词汇，保留原有的产品信息和内容要点，只做减法不做加法，不要添加原本没有的内容：\n\n{text.strip()}"},
+                    ],
+                    "max_tokens": 600,
+                }
+                import json as _json3
                 polish_resp = req2.post(
                     "https://apihub.agnes-ai.com/v1/chat/completions",
                     headers={
                         "Authorization": f"Bearer {AGNES_KEY}",
-                        "Content-Type": "application/json",
+                        "Content-Type": "application/json; charset=utf-8",
                     },
-                    json={
-                        "model": "agnes-2.0-flash",
-                        "messages": [
-                            {"role": "system", "content": POLISH_PROMPT},
-                            {"role": "user", "content": f"请对以下文案进行去广润色，去掉营销话术和硬广词汇，保留原有的产品信息和内容要点，只做减法不做加法，不要添加原本没有的内容：\n\n{text.strip()}"},
-                        ],
-                        "max_tokens": 600,
-                    },
+                    data=_json3.dumps(polish_payload, ensure_ascii=False).encode("utf-8"),
                     timeout=30,
                 )
                 if polish_resp.status_code == 200:
@@ -317,25 +321,27 @@ if st.button("▶ 开始合成", use_container_width=True):
             try:
                 import requests
 
+                payload = {
+                    "model": "cosyvoice-v3.5-plus",
+                    "input": {
+                        "text": text,
+                        "voice": selected_voice,
+                        "format": "mp3",
+                    },
+                    "parameters": {
+                        "rate": speed,
+                        "volume": volume,
+                        "language_hints": [lang_hint],
+                    },
+                }
+                import json as _json
                 resp = requests.post(
                     "https://dashscope.aliyuncs.com/api/v1/services/audio/tts/SpeechSynthesizer",
                     headers={
                         "Authorization": f"Bearer {api_key.strip()}",
-                        "Content-Type": "application/json",
+                        "Content-Type": "application/json; charset=utf-8",
                     },
-                    json={
-                        "model": "cosyvoice-v3.5-plus",
-                        "input": {
-                            "text": text,
-                            "voice": selected_voice,
-                            "format": "mp3",
-                        },
-                        "parameters": {
-                            "rate": speed,
-                            "volume": volume,
-                            "language_hints": [lang_hint],
-                        },
-                    },
+                    data=_json.dumps(payload, ensure_ascii=False).encode("utf-8"),
                     timeout=60,
                 )
 
